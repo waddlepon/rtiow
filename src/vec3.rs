@@ -2,9 +2,9 @@ use std::ops::{Neg, Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssi
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 pub type Color = Vec3;
@@ -38,7 +38,7 @@ impl Vec3 {
     }
 
     pub fn length_squared(&self) -> f32 {
-        self.x * self.x + self.y * self.y + self.z * self.x
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     pub fn dot(&self, other: &Vec3) -> f32 {
