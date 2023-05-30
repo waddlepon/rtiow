@@ -1,10 +1,14 @@
+use crate::material::{ Lambertian, Material };
 use crate::ray::Ray;
-use crate::vec3::{ Point3, Vec3 };
+use crate::vec3::{ Color, Point3, Vec3 };
 
-#[derive(Copy, Clone, Debug)]
+use std::rc::Rc;
+
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub mat_ptr: Rc<dyn Material>,
     pub t: f32,
     pub front_face: bool,
 }
@@ -14,6 +18,7 @@ impl HitRecord {
         HitRecord {
             p: Point3::new(0., 0., 0.),
             normal: Vec3::new(0., 0., 0.),
+            mat_ptr: Rc::new(Lambertian::new(Color::new(0., 0., 0.))),
             t: 0.,
             front_face: false,
         }
