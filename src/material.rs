@@ -2,6 +2,8 @@ use crate::hittable::HitRecord;
 use crate::ray::Ray;
 use crate::vec3::{ Color, Point3, Vec3 };
 
+use rand::Rng;
+
 pub trait Material {
     fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool;
 }
@@ -50,5 +52,48 @@ impl Material for Metal {
         *attenuation = self.albedo;
 
         scattered.direction.dot(&rec.normal) > 0.
+    }
+}
+
+pub struct Dielectric {
+    pub ir: f32,
+}
+
+impl Dielectric {
+    pub fn new(ir: f32) -> Dielectric {
+        Dielectric { ir: ir }
+    }
+
+    fn reflectance(cosine: f32, ref_idx: f32) -> f32 {
+        let mut r0 = (1. - ref_idx) / (1. + ref_idx);
+        r0 = r0 * r0;
+
+        r0 + (1. - r0) * (1. - cosine).powi(5)
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
+        *attenuation = Color::new(1., 1., 1.);
+        
+        let refraction_ratio = if rec.front_face { 1.0 / self.ir } else { self.ir };
+
+        let unit_direction = r_in.direction.clone().unit_vector();
+
+        let cos_theta = if -unit_direction.dot(&rec.normal) < 1.0 { -unit_direction.dot(&rec.normal) } else { 1.0 };
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+        let direction;
+        let mut rng = rand::thread_rng();
+
+        if cannot_refract || Dielectric::reflectance(cos_theta, refraction_ratio) > rng.gen::<f32>()  {
+            direction = unit_direction.reflect(&rec.normal);
+        } else {
+            direction = unit_direction.refract(&rec.normal, refraction_ratio);
+        }
+        *scattered = Ray::new(rec.p, direction);
+
+        true
     }
 }

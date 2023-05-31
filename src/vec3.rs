@@ -69,6 +69,14 @@ impl Vec3 {
         self - 2. * self.dot(other) * other
     }
 
+    pub fn refract(&self, n: &Vec3, etai_over_etat: f32) -> Vec3 {
+        let cos_theta = if -self.dot(&n) < 1.0 { -self.dot(&n) } else { 1.0 };
+        let r_out_perp = etai_over_etat * (self + cos_theta * n);
+        let r_out_parallel = -((1.0 - r_out_perp.length_squared()).abs()).sqrt() * n;
+
+        return r_out_perp + r_out_parallel;
+    }
+
     pub fn unit_vector(self) -> Vec3 {
         self / self.length()
     }
@@ -96,6 +104,15 @@ impl Vec3 {
             return in_unit_sphere;
         } else {
             return -in_unit_sphere;
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        loop {
+            let p = Vec3::new(-1. + 2. * rng.gen::<f32>(), -1. + 2. * rng.gen::<f32>(), 0.);
+            if p.length_squared() >= 1. { continue; }
+            return p;
         }
     }
 }
