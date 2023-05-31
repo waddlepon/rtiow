@@ -1,2 +1,2 @@
 # RTIOW
-Rust implementation of [Raytraing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+Rust implementation of [Raytracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
